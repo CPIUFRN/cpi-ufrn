@@ -244,14 +244,16 @@ function clearDraft() {
 // ─── NAVEGAÇÃO ────────────────────────────────────────────────────────────────
 
 function showScreen(n) {
-  // Remove 'active' de TODAS as telas primeiro
+  // 1. Oculta TODAS as telas — remove classe e limpa qualquer style inline
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
+    s.style.removeProperty('display'); // limpa inline do script de emergência
   });
-  // Adiciona 'active' somente na tela alvo
+  // 2. Exibe apenas a tela alvo
   const target = document.getElementById('screen-' + n);
   if (target) {
     target.classList.add('active');
+    target.style.removeProperty('display'); // deixa o CSS controlar
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
   state.currentScreen = n;

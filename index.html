@@ -9,6 +9,32 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+
+  <!-- CSS CRÍTICO INLINE — garante display:none mesmo se style.css falhar -->
+  <style>
+    .screen { display: none !important; }
+    .screen.active { display: flex !important; flex-direction: column; min-height: 100dvh; }
+  </style>
+
+  <!-- SCRIPT SÍNCRONO DE EMERGÊNCIA — executa antes do DOMContentLoaded -->
+  <!-- Garante que telas inativas ficam ocultas antes de qualquer renderização -->
+  <script>
+    (function () {
+      function ocultarTelasInativas() {
+        var telas = document.querySelectorAll('.screen');
+        telas.forEach(function (t) {
+          if (!t.classList.contains('active')) {
+            t.style.setProperty('display', 'none', 'important');
+          }
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ocultarTelasInativas);
+      } else {
+        ocultarTelasInativas();
+      }
+    })();
+  </script>
 </head>
 <body>
   <div id="app">
