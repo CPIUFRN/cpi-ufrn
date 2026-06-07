@@ -4,6 +4,16 @@
 
 'use strict';
 
+// ─── GUARD: CONFIG padrão caso config.js não carregue ────────────────────────
+if (typeof window.CONFIG === 'undefined') {
+  console.warn('[CPI] config.js não encontrado — usando configuração padrão sem credenciais.');
+  window.CONFIG = {
+    formspree: { endpoint: '' },
+    trello: { trelloKey: '', trelloToken: '', boardId: '', listName: '' },
+    app: { draftExpiryDays: 30, maxWidth: '680px' },
+  };
+}
+
 // ─── CATÁLOGO DE PRODUTOS ────────────────────────────────────────────────────
 
 const PRODUTOS = [

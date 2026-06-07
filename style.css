@@ -58,9 +58,11 @@ body {
   display: none;
   flex-direction: column;
   min-height: 100dvh;
+}
+.screen.active {
+  display: flex;
   animation: fadeIn .25s ease;
 }
-.screen.active { display: flex; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }

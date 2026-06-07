@@ -1,5 +1,5 @@
 # ─── Credenciais e configurações locais ───
-config.js
+# config.js é versionado com placeholder — preencha localmente após clonar
 .env
 .env.local
 .env.*.local
