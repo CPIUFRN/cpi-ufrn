@@ -10,31 +10,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 
-  <!-- CSS CRÍTICO INLINE — garante display:none mesmo se style.css falhar -->
+  <!-- ═══ CSS CRÍTICO DE NAVEGAÇÃO — INLINE, NUNCA DÁ 404 ═══ -->
   <style>
+    /* Regra absoluta: todas as telas ocultas por padrão */
     .screen { display: none !important; }
-    .screen.active { display: flex !important; flex-direction: column; min-height: 100dvh; }
+    /* Única tela visível: a que tiver classe 'active' */
+    .screen.active { display: block !important; }
   </style>
-
-  <!-- SCRIPT SÍNCRONO DE EMERGÊNCIA — executa antes do DOMContentLoaded -->
-  <!-- Garante que telas inativas ficam ocultas antes de qualquer renderização -->
-  <script>
-    (function () {
-      function ocultarTelasInativas() {
-        var telas = document.querySelectorAll('.screen');
-        telas.forEach(function (t) {
-          if (!t.classList.contains('active')) {
-            t.style.setProperty('display', 'none', 'important');
-          }
-        });
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', ocultarTelasInativas);
-      } else {
-        ocultarTelasInativas();
-      }
-    })();
-  </script>
 </head>
 <body>
   <div id="app">
@@ -56,11 +38,11 @@
         </div>
 
         <div class="entry-actions">
-          <button class="btn btn-primary btn-lg" id="btn-start">
+          <button class="btn btn-primary btn-lg" id="btn-start" onclick="goTo(1)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
             Iniciar nova solicitação
           </button>
-          <button class="btn btn-outline" id="btn-resume">
+          <button class="btn btn-outline" id="btn-resume" onclick="toggleResumeBox()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd" /></svg>
             Retomar rascunho salvo
           </button>
@@ -70,7 +52,7 @@
           <label for="resume-code" class="label">Digite seu código de rascunho</label>
           <div class="resume-input-row">
             <input type="text" id="resume-code" class="input" placeholder="CPI-2026-XXXX" maxlength="12" autocomplete="off" spellcheck="false" />
-            <button class="btn btn-primary" id="btn-resume-confirm">Retomar</button>
+            <button class="btn btn-primary" onclick="resumeDraft()">Retomar</button>
           </div>
           <p class="resume-hint">O código foi exibido ao iniciar sua sessão e foi salvo no seu dispositivo.</p>
         </div>
@@ -96,62 +78,48 @@
             <input type="text" id="nome" name="nome" class="input" placeholder="Ex.: Maria das Graças Oliveira" autocomplete="name" required />
             <span class="field-error" id="error-nome" role="alert"></span>
           </div>
-
           <div class="field">
             <label for="email" class="label">E-mail institucional <span class="required" aria-hidden="true">*</span></label>
             <input type="email" id="email" name="email" class="input" placeholder="usuario@ufrn.br" autocomplete="email" required />
             <span class="field-error" id="error-email" role="alert"></span>
           </div>
-
           <div class="field">
             <label for="telefone" class="label">Telefone / WhatsApp <span class="required" aria-hidden="true">*</span></label>
             <input type="tel" id="telefone" name="telefone" class="input" placeholder="(84) 9 0000-0000" autocomplete="tel" required />
             <span class="field-error" id="error-telefone" role="alert"></span>
           </div>
-
           <div class="field">
             <label for="setor" class="label">Setor / Departamento / Unidade <span class="required" aria-hidden="true">*</span></label>
             <input type="text" id="setor" name="setor" class="input" placeholder="Ex.: Departamento de Ciências da Computação" required />
             <span class="field-error" id="error-setor" role="alert"></span>
           </div>
-
           <div class="field">
             <label class="label">Vínculo com a UFRN <span class="required" aria-hidden="true">*</span></label>
             <div class="radio-group" role="radiogroup" aria-required="true">
               <label class="radio-card">
-                <input type="radio" name="vinculo" value="servidor" />
-                <span class="radio-card-content">
-                  <strong>Servidor(a)</strong>
-                  <span>Técnico-administrativo ou docente</span>
-                </span>
+                <input type="radio" name="vinculo" value="servidor" onchange="state.vinculo=this.value;checkVinculo();saveDraft()" />
+                <span class="radio-card-content"><strong>Servidor(a)</strong><span>Técnico-administrativo ou docente</span></span>
               </label>
               <label class="radio-card">
-                <input type="radio" name="vinculo" value="discente" />
-                <span class="radio-card-content">
-                  <strong>Discente</strong>
-                  <span>Estudante de graduação ou pós-graduação</span>
-                </span>
+                <input type="radio" name="vinculo" value="discente" onchange="state.vinculo=this.value;checkVinculo();saveDraft()" />
+                <span class="radio-card-content"><strong>Discente</strong><span>Estudante de graduação ou pós-graduação</span></span>
               </label>
               <label class="radio-card">
-                <input type="radio" name="vinculo" value="sem_vinculo" />
-                <span class="radio-card-content">
-                  <strong>Sem vínculo</strong>
-                  <span>Externo à UFRN</span>
-                </span>
+                <input type="radio" name="vinculo" value="sem_vinculo" onchange="state.vinculo=this.value;checkVinculo();saveDraft()" />
+                <span class="radio-card-content"><strong>Sem vínculo</strong><span>Externo à UFRN</span></span>
               </label>
             </div>
             <span class="field-error" id="error-vinculo" role="alert"></span>
           </div>
-
           <div class="alert alert-error hidden" id="alert-no-vinculo" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
-            <span>Este formulário é destinado exclusivamente à comunidade UFRN (servidores e discentes). Solicitações externas devem ser encaminhadas por outro canal.</span>
+            <span>Este formulário é destinado exclusivamente à comunidade UFRN (servidores e discentes).</span>
           </div>
         </form>
 
         <div class="screen-nav">
-          <button class="btn btn-ghost" data-back="0">← Voltar</button>
-          <button class="btn btn-primary" id="btn-next-1">Continuar →</button>
+          <button class="btn btn-ghost" onclick="goTo(0)">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextFrom1()">Continuar →</button>
         </div>
       </div>
     </section>
@@ -168,29 +136,28 @@
         <form class="form" id="form-2" novalidate>
           <div class="field">
             <label for="descricao" class="label">Descreva sua necessidade <span class="required" aria-hidden="true">*</span></label>
-            <textarea id="descricao" name="descricao" class="input textarea" placeholder="Ex.: Quero divulgar um evento de extensão do meu departamento para a comunidade interna e externa. Preciso de artes para o Instagram e um banner digital." rows="5" required></textarea>
+            <textarea id="descricao" name="descricao" class="input textarea" placeholder="Ex.: Quero divulgar um evento de extensão do meu departamento para a comunidade interna e externa. Preciso de artes para o Instagram e um banner digital." rows="5" required oninput="state.descricao=sanitize(this.value);updateCharCount('descricao','char-descricao',600);saveDraft()"></textarea>
             <span class="char-count" id="char-descricao" aria-live="polite">0 / 600 caracteres</span>
             <span class="field-error" id="error-descricao" role="alert"></span>
           </div>
-
           <div class="field">
             <label class="label">Você já tem clareza sobre o que precisa?</label>
             <p class="field-hint">Isso nos ajuda a entender o nível de orientação que você necessita.</p>
             <div class="clarity-group" role="radiogroup">
               <label class="clarity-card" data-value="claro">
-                <input type="radio" name="clareza" value="claro" />
+                <input type="radio" name="clareza" value="claro" onchange="state.clareza=this.value;saveDraft()" />
                 <div class="clarity-icon">🎯</div>
                 <strong>Bem definido</strong>
                 <span>Já sei exatamente o que quero</span>
               </label>
               <label class="clarity-card" data-value="parcial">
-                <input type="radio" name="clareza" value="parcial" />
+                <input type="radio" name="clareza" value="parcial" onchange="state.clareza=this.value;saveDraft()" />
                 <div class="clarity-icon">💡</div>
                 <strong>Tenho uma ideia</strong>
                 <span>Mas ainda preciso de orientação</span>
               </label>
               <label class="clarity-card" data-value="incerto">
-                <input type="radio" name="clareza" value="incerto" />
+                <input type="radio" name="clareza" value="incerto" onchange="state.clareza=this.value;saveDraft()" />
                 <div class="clarity-icon">🤔</div>
                 <strong>Estou em dúvida</strong>
                 <span>Não sei bem o que é mais adequado</span>
@@ -201,8 +168,8 @@
         </form>
 
         <div class="screen-nav">
-          <button class="btn btn-ghost" data-back="1">← Voltar</button>
-          <button class="btn btn-primary" id="btn-next-2">Continuar →</button>
+          <button class="btn btn-ghost" onclick="goTo(1)">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextFrom2()">Continuar →</button>
         </div>
       </div>
     </section>
@@ -216,14 +183,12 @@
           <p>Selecione a categoria que melhor representa sua demanda. Você poderá detalhar na próxima etapa.</p>
         </div>
 
-        <div class="catalog-grid" id="catalog-grid" role="listbox" aria-label="Catálogo de produtos" aria-required="true">
-          <!-- gerado pelo JS -->
-        </div>
+        <div class="catalog-grid" id="catalog-grid" role="listbox" aria-label="Catálogo de produtos"></div>
         <span class="field-error" id="error-produto" role="alert"></span>
 
         <div class="screen-nav">
-          <button class="btn btn-ghost" data-back="2">← Voltar</button>
-          <button class="btn btn-primary" id="btn-next-3">Continuar →</button>
+          <button class="btn btn-ghost" onclick="goTo(2)">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextFrom3()">Continuar →</button>
         </div>
       </div>
     </section>
@@ -240,55 +205,42 @@
         <form class="form" id="form-4" novalidate>
           <div class="field">
             <label for="nome-projeto" class="label">Nome do projeto ou ação <span class="required" aria-hidden="true">*</span></label>
-            <input type="text" id="nome-projeto" name="nome_projeto" class="input" placeholder="Ex.: Semana de Engenharia 2026" required />
+            <input type="text" id="nome-projeto" name="nome_projeto" class="input" placeholder="Ex.: Semana de Engenharia 2026" required oninput="state.nomeProjeto=sanitize(this.value);saveDraft()" />
             <span class="field-error" id="error-nome-projeto" role="alert"></span>
           </div>
-
           <div class="field">
             <label for="objetivo" class="label">Objetivo da comunicação <span class="required" aria-hidden="true">*</span></label>
-            <textarea id="objetivo" name="objetivo" class="input textarea" placeholder="Ex.: Divulgar o evento para atrair participantes da comunidade acadêmica e do público geral." rows="3" required></textarea>
+            <textarea id="objetivo" name="objetivo" class="input textarea" placeholder="Ex.: Divulgar o evento para atrair participantes da comunidade acadêmica e do público geral." rows="3" required oninput="state.objetivo=sanitize(this.value);saveDraft()"></textarea>
             <span class="field-error" id="error-objetivo" role="alert"></span>
           </div>
-
           <div class="field">
             <label for="publico" class="label">Público-alvo <span class="required" aria-hidden="true">*</span></label>
-            <input type="text" id="publico" name="publico_alvo" class="input" placeholder="Ex.: Estudantes de graduação e comunidade local" required />
+            <input type="text" id="publico" name="publico_alvo" class="input" placeholder="Ex.: Estudantes de graduação e comunidade local" required oninput="state.publicoAlvo=sanitize(this.value);saveDraft()" />
             <span class="field-error" id="error-publico" role="alert"></span>
           </div>
-
           <div class="field">
             <label for="data-desejada" class="label">Data de entrega desejada <span class="required" aria-hidden="true">*</span></label>
-            <input type="date" id="data-desejada" name="data_desejada" class="input" required />
+            <input type="date" id="data-desejada" name="data_desejada" class="input" required onchange="state.dataDesejada=this.value;updatePrazoDisplay();saveDraft()" />
             <div class="prazo-display hidden" id="prazo-display" aria-live="polite">
               <div class="prazo-badge" id="prazo-badge"></div>
               <p class="prazo-msg" id="prazo-msg"></p>
             </div>
             <span class="field-error" id="error-data" role="alert"></span>
           </div>
-
           <div class="field">
             <label class="label">Nível de urgência <span class="required" aria-hidden="true">*</span></label>
             <div class="radio-group" role="radiogroup" aria-required="true">
               <label class="radio-card">
-                <input type="radio" name="urgencia" value="normal" />
-                <span class="radio-card-content">
-                  <strong>Normal</strong>
-                  <span>Sem pressão de tempo específica</span>
-                </span>
+                <input type="radio" name="urgencia" value="normal" onchange="state.urgencia=this.value;saveDraft()" />
+                <span class="radio-card-content"><strong>Normal</strong><span>Sem pressão de tempo específica</span></span>
               </label>
               <label class="radio-card">
-                <input type="radio" name="urgencia" value="prioritario" />
-                <span class="radio-card-content">
-                  <strong>Prioritário</strong>
-                  <span>Prazo importante, mas viável</span>
-                </span>
+                <input type="radio" name="urgencia" value="prioritario" onchange="state.urgencia=this.value;saveDraft()" />
+                <span class="radio-card-content"><strong>Prioritário</strong><span>Prazo importante, mas viável</span></span>
               </label>
               <label class="radio-card">
-                <input type="radio" name="urgencia" value="urgente" />
-                <span class="radio-card-content">
-                  <strong>Urgente</strong>
-                  <span>Prazo crítico, pode haver negociação</span>
-                </span>
+                <input type="radio" name="urgencia" value="urgente" onchange="state.urgencia=this.value;saveDraft()" />
+                <span class="radio-card-content"><strong>Urgente</strong><span>Prazo crítico, pode haver negociação</span></span>
               </label>
             </div>
             <span class="field-error" id="error-urgencia" role="alert"></span>
@@ -296,8 +248,8 @@
         </form>
 
         <div class="screen-nav">
-          <button class="btn btn-ghost" data-back="3">← Voltar</button>
-          <button class="btn btn-primary" id="btn-next-4">Continuar →</button>
+          <button class="btn btn-ghost" onclick="goTo(3)">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextFrom4()">Continuar →</button>
         </div>
       </div>
     </section>
@@ -315,68 +267,38 @@
           <div class="field">
             <label class="label">O que você já tem? (marque tudo que se aplica)</label>
             <div class="checkbox-group">
-              <label class="checkbox-card">
-                <input type="checkbox" name="materiais" value="texto" />
-                <span>📝 Texto / roteiro pronto</span>
-              </label>
-              <label class="checkbox-card">
-                <input type="checkbox" name="materiais" value="fotos" />
-                <span>📸 Fotos já tiradas</span>
-              </label>
-              <label class="checkbox-card">
-                <input type="checkbox" name="materiais" value="videos_brutos" />
-                <span>🎥 Vídeos brutos gravados</span>
-              </label>
-              <label class="checkbox-card">
-                <input type="checkbox" name="materiais" value="logo" />
-                <span>🎨 Logo do evento ou setor</span>
-              </label>
-              <label class="checkbox-card">
-                <input type="checkbox" name="materiais" value="referencias" />
-                <span>🔗 Referências visuais / inspirações</span>
-              </label>
-              <label class="checkbox-card">
-                <input type="checkbox" name="materiais" value="nenhum" />
-                <span>❌ Não tenho nenhum material</span>
-              </label>
+              <label class="checkbox-card"><input type="checkbox" name="materiais" value="texto" onchange="readForm5();saveDraft()" /><span>📝 Texto / roteiro pronto</span></label>
+              <label class="checkbox-card"><input type="checkbox" name="materiais" value="fotos" onchange="readForm5();saveDraft()" /><span>📸 Fotos já tiradas</span></label>
+              <label class="checkbox-card"><input type="checkbox" name="materiais" value="videos_brutos" onchange="readForm5();saveDraft()" /><span>🎥 Vídeos brutos gravados</span></label>
+              <label class="checkbox-card"><input type="checkbox" name="materiais" value="logo" onchange="readForm5();saveDraft()" /><span>🎨 Logo do evento ou setor</span></label>
+              <label class="checkbox-card"><input type="checkbox" name="materiais" value="referencias" onchange="readForm5();saveDraft()" /><span>🔗 Referências visuais / inspirações</span></label>
+              <label class="checkbox-card"><input type="checkbox" name="materiais" value="nenhum" onchange="readForm5();saveDraft()" /><span>❌ Não tenho nenhum material</span></label>
             </div>
           </div>
-
           <div class="field">
             <label for="link-materiais" class="label">Link para materiais (opcional)</label>
-            <input type="url" id="link-materiais" name="link_materiais" class="input" placeholder="https://drive.google.com/..." />
+            <input type="url" id="link-materiais" name="link_materiais" class="input" placeholder="https://drive.google.com/..." oninput="state.linkMateriais=sanitize(this.value);saveDraft()" />
             <p class="field-hint">Google Drive, Dropbox, WeTransfer ou qualquer outro link de acesso.</p>
             <span class="field-error" id="error-link" role="alert"></span>
           </div>
-
           <div class="field">
             <label for="obs-materiais" class="label">Observações adicionais (opcional)</label>
-            <textarea id="obs-materiais" name="obs_materiais" class="input textarea" placeholder="Alguma instrução, restrição ou informação relevante que não foi contemplada acima." rows="3"></textarea>
+            <textarea id="obs-materiais" name="obs_materiais" class="input textarea" placeholder="Alguma instrução, restrição ou informação relevante que não foi contemplada acima." rows="3" oninput="state.obsMateriais=sanitize(this.value);saveDraft()"></textarea>
           </div>
-
           <div class="field">
             <label class="label">Este material precisará de aprovação de alguma chefia ou comissão antes de ser publicado? <span class="required" aria-hidden="true">*</span></label>
             <div class="radio-group radio-group--row" role="radiogroup" aria-required="true">
-              <label class="radio-card">
-                <input type="radio" name="aprovacao" value="sim" />
-                <span class="radio-card-content"><strong>Sim</strong></span>
-              </label>
-              <label class="radio-card">
-                <input type="radio" name="aprovacao" value="nao" />
-                <span class="radio-card-content"><strong>Não</strong></span>
-              </label>
-              <label class="radio-card">
-                <input type="radio" name="aprovacao" value="nao_sei" />
-                <span class="radio-card-content"><strong>Não sei</strong></span>
-              </label>
+              <label class="radio-card"><input type="radio" name="aprovacao" value="sim" onchange="state.aprovacao=this.value;saveDraft()" /><span class="radio-card-content"><strong>Sim</strong></span></label>
+              <label class="radio-card"><input type="radio" name="aprovacao" value="nao" onchange="state.aprovacao=this.value;saveDraft()" /><span class="radio-card-content"><strong>Não</strong></span></label>
+              <label class="radio-card"><input type="radio" name="aprovacao" value="nao_sei" onchange="state.aprovacao=this.value;saveDraft()" /><span class="radio-card-content"><strong>Não sei</strong></span></label>
             </div>
             <span class="field-error" id="error-aprovacao" role="alert"></span>
           </div>
         </form>
 
         <div class="screen-nav">
-          <button class="btn btn-ghost" data-back="4">← Voltar</button>
-          <button class="btn btn-primary" id="btn-next-5">Revisar solicitação →</button>
+          <button class="btn btn-ghost" onclick="goTo(4)">← Voltar</button>
+          <button class="btn btn-primary" onclick="nextFrom5()">Revisar solicitação →</button>
         </div>
       </div>
     </section>
@@ -390,9 +312,7 @@
           <p>Confira todas as informações antes de enviar. Você ainda pode voltar e editar qualquer campo.</p>
         </div>
 
-        <div class="review-container" id="review-container">
-          <!-- gerado pelo JS -->
-        </div>
+        <div class="review-container" id="review-container"></div>
 
         <div class="alert alert-info" role="note">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" /></svg>
@@ -400,8 +320,8 @@
         </div>
 
         <div class="screen-nav screen-nav--submit">
-          <button class="btn btn-ghost" data-back="5">← Editar</button>
-          <button class="btn btn-primary btn-lg" id="btn-submit">
+          <button class="btn btn-ghost" onclick="goTo(5)">← Editar</button>
+          <button class="btn btn-primary btn-lg" id="btn-submit" onclick="submitForm()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" /></svg>
             Enviar solicitação
           </button>
@@ -426,25 +346,551 @@
         <div class="protocol-box" id="protocol-box" aria-label="Número de protocolo">
           <span class="protocol-label">Número de protocolo</span>
           <span class="protocol-number" id="protocol-number">—</span>
-          <button class="btn-copy" id="btn-copy-protocol" aria-label="Copiar número de protocolo" title="Copiar">
+          <button class="btn-copy" id="btn-copy-protocol" onclick="copyProtocol()" aria-label="Copiar número de protocolo" title="Copiar">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z" /><path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z" /></svg>
           </button>
         </div>
 
-        <div class="confirm-details" id="confirm-details">
-          <!-- preenchido pelo JS -->
-        </div>
+        <div class="confirm-details" id="confirm-details"></div>
 
         <div class="confirm-next">
           <p>Nossa equipe entrará em contato pelo e-mail informado em até <strong>2 dias úteis</strong>.</p>
-          <button class="btn btn-outline" id="btn-new-request">Fazer nova solicitação</button>
+          <button class="btn btn-outline" onclick="newRequest()">Fazer nova solicitação</button>
         </div>
       </div>
     </section>
 
   </div><!-- /#app -->
 
+  <!-- config.js carrega as credenciais (window.CONFIG) -->
   <script src="config.js"></script>
-  <script src="app.js"></script>
+
+  <!-- ═══ TODA A LÓGICA JS INLINE — SEM DEPENDÊNCIA DE ARQUIVO EXTERNO ═══ -->
+  <script>
+    // ── GUARD CONFIG ──────────────────────────────────────────────────────────
+    if (typeof window.CONFIG === 'undefined') {
+      window.CONFIG = {
+        formspree: { endpoint: '' },
+        trello: { trelloKey: '', trelloToken: '', boardId: '', listName: '' },
+        app: { draftExpiryDays: 30 },
+      };
+    }
+
+    // ── CATÁLOGO ──────────────────────────────────────────────────────────────
+    var PRODUTOS = [
+      { id:'design_social', icon:'🖼️', nome:'Arte para Redes Sociais',        prazoMinimo:5,  desc:'Postagem única para Instagram, Facebook ou outras redes. Ideal para avisos e divulgações pontuais.',                                  subtipo:[{id:'arte_unica',label:'Arte única',prazo:5},{id:'conjunto_artes',label:'Conjunto de artes (série)',prazo:10}] },
+      { id:'identidade',   icon:'🎨', nome:'Identidade Visual',               prazoMinimo:15, desc:'Logo, paleta de cores, tipografia e guia de marca para eventos, projetos ou setores.',                                                subtipo:[{id:'logo_isolado',label:'Logotipo isolado',prazo:15},{id:'identidade_completa',label:'Identidade visual completa',prazo:30}] },
+      { id:'video',        icon:'🎬', nome:'Produção de Vídeo',               prazoMinimo:5,  desc:'Vídeos institucionais, de eventos, reels, depoimentos ou tutoriais para qualquer plataforma.',                                        subtipo:[{id:'animacao_logo',label:'Animação de logo',prazo:10},{id:'video_curto_completo',label:'Vídeo curto (completo)',prazo:10},{id:'video_curto_edicao',label:'Vídeo curto (só edição)',prazo:5},{id:'video_longo_completo',label:'Vídeo longo (completo)',prazo:20},{id:'video_longo_edicao',label:'Vídeo longo (só edição)',prazo:10}] },
+      { id:'fotografia',   icon:'📷', nome:'Cobertura Fotográfica',           prazoMinimo:7,  desc:'Registro fotográfico de eventos, cerimônias, solenidades e atividades institucionais.',                                              subtipo:[{id:'cobertura_foto',label:'Cobertura fotográfica',prazo:7},{id:'cobertura_av',label:'Cobertura audiovisual (foto + vídeo)',prazo:10}] },
+      { id:'campanha',     icon:'📢', nome:'Campanha de Comunicação',         prazoMinimo:10, desc:'Conjunto integrado de peças para um objetivo específico: lançamento, evento, conscientização.',                                       subtipo:[{id:'campanha_artes',label:'Campanha (só artes)',prazo:10},{id:'campanha_artes_video',label:'Campanha (artes + vídeo)',prazo:15},{id:'campanha_completa',label:'Campanha completa',prazo:30}] },
+      { id:'colab',        icon:'🤝', nome:'Colaboração em Publicação',       prazoMinimo:3,  desc:'Revisão, formatação ou apoio para publicações, notícias, releases e textos institucionais.',                                          subtipo:[{id:'colab_publicacao',label:'Colaboração em publicação',prazo:3}] },
+      { id:'banner',       icon:'🖥️', nome:'Banner / Material Impresso',      prazoMinimo:5,  desc:'Banners físicos ou digitais, faixas, folders, flyers, cartazes e outros materiais gráficos.',                                        subtipo:[{id:'banner_digital',label:'Banner digital',prazo:5},{id:'material_impresso',label:'Material impresso (folder, flyer…)',prazo:7}] },
+      { id:'outro',        icon:'✨', nome:'Outro / Não sei ao certo',        prazoMinimo:5,  desc:'Não encontrou o que precisa? Descreva e nossa equipe vai identificar o melhor formato.',                                              subtipo:[] },
+    ];
+
+    var PRAZO_MAP = {};
+    PRODUTOS.forEach(function(p) {
+      (p.subtipo||[]).forEach(function(s){ PRAZO_MAP[s.id] = s.prazo || p.prazoMinimo; });
+      if (!p.subtipo || p.subtipo.length === 0) PRAZO_MAP[p.id] = p.prazoMinimo;
+    });
+
+    // ── ESTADO ────────────────────────────────────────────────────────────────
+    var state = {
+      sessionId:null, currentScreen:0, savedAt:null,
+      nome:'', email:'', telefone:'', setor:'', vinculo:'',
+      descricao:'', clareza:'',
+      produtoId:'', subtipoId:'',
+      nomeProjeto:'', objetivo:'', publicoAlvo:'', dataDesejada:'', urgencia:'',
+      diasUteis:0, prazoStatus:'',
+      materiais:[], linkMateriais:'', obsMateriais:'', aprovacao:'',
+      protocolo:''
+    };
+
+    // ── NAVEGAÇÃO PRINCIPAL ───────────────────────────────────────────────────
+    function goTo(n) {
+      // Passo 1: ocultar TODAS as telas via style direto E remover classe
+      var telas = document.querySelectorAll('.screen');
+      for (var i = 0; i < telas.length; i++) {
+        telas[i].style.display = 'none';
+        telas[i].classList.remove('active');
+      }
+      // Passo 2: mostrar apenas a tela alvo via style direto E adicionar classe
+      var alvo = document.getElementById('screen-' + n);
+      if (alvo) {
+        alvo.style.display = 'block';
+        alvo.classList.add('active');
+        window.scrollTo(0, 0);
+      }
+      state.currentScreen = n;
+      saveDraft();
+    }
+
+    // ── UTILS ─────────────────────────────────────────────────────────────────
+    function sanitize(s) { return s ? String(s).replace(/[<>]/g,'') : ''; }
+
+    function generateId() {
+      return 'CPI-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random()*9000);
+    }
+
+    function formatDate(d) {
+      if (!d) return '—';
+      var p = d.split('-'); return p[2]+'/'+p[1]+'/'+p[0];
+    }
+
+    function countBusinessDays(from, to) {
+      var count = 0;
+      var cur = new Date(from); cur.setHours(0,0,0,0); cur.setDate(cur.getDate()+1);
+      var end = new Date(to);   end.setHours(0,0,0,0);
+      while (cur <= end) { var d=cur.getDay(); if(d!==0&&d!==6) count++; cur.setDate(cur.getDate()+1); }
+      return count;
+    }
+
+    // ── PERSISTÊNCIA ──────────────────────────────────────────────────────────
+    var DRAFT_KEY = 'cpi_demandas_draft';
+
+    function saveDraft() {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(Object.assign({}, state, {savedAt: new Date().toISOString()}))); } catch(e){}
+    }
+
+    function loadDraft(id) {
+      try {
+        var raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return null;
+        var d = JSON.parse(raw);
+        if (d.sessionId !== id) return null;
+        var age = (Date.now() - new Date(d.savedAt).getTime()) / 86400000;
+        if (age > (window.CONFIG.app.draftExpiryDays || 30)) { localStorage.removeItem(DRAFT_KEY); return null; }
+        return d;
+      } catch(e){ return null; }
+    }
+
+    function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch(e){} }
+
+    // ── ERROS ─────────────────────────────────────────────────────────────────
+    function showErr(id, msg) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = msg; el.style.display = msg ? 'block' : 'none'; }
+    }
+
+    function markErr(id, has) {
+      var el = document.getElementById(id);
+      if (el) { if(has) el.classList.add('error'); else el.classList.remove('error'); }
+    }
+
+    // ── VÍNCULO ───────────────────────────────────────────────────────────────
+    function checkVinculo() {
+      var el = document.getElementById('alert-no-vinculo');
+      if (!el) return;
+      if (state.vinculo === 'sem_vinculo') el.classList.remove('hidden');
+      else el.classList.add('hidden');
+    }
+
+    // ── FLUXO TELA 0 ─────────────────────────────────────────────────────────
+    function toggleResumeBox() {
+      var box = document.getElementById('resume-box');
+      if (box.classList.contains('hidden')) { box.classList.remove('hidden'); document.getElementById('resume-code').focus(); }
+      else box.classList.add('hidden');
+    }
+
+    function resumeDraft() {
+      var code = document.getElementById('resume-code').value.trim().toUpperCase();
+      if (!code) return;
+      var draft = loadDraft(code);
+      if (!draft) { alert('Nenhum rascunho encontrado para este código, ou ele já expirou (30 dias).'); return; }
+      Object.assign(state, draft);
+      updateSessionChip();
+      goTo(state.currentScreen || 1);
+      populateForms(state.currentScreen || 1);
+    }
+
+    // ── CHIP DE SESSÃO ────────────────────────────────────────────────────────
+    function updateSessionChip() {
+      var chip = document.getElementById('session-chip');
+      if (!chip || !state.sessionId) return;
+      chip.innerHTML = 'Código de rascunho: <strong>' + state.sessionId + '</strong>';
+    }
+
+    // ── INICIAR ───────────────────────────────────────────────────────────────
+    // O botão "Iniciar" chama goTo(1) via onclick, mas também precisamos
+    // gerar o sessionId e atualizar o chip:
+    document.getElementById('btn-start').addEventListener('click', function() {
+      state.sessionId = generateId();
+      updateSessionChip();
+      saveDraft();
+      // goTo(1) já foi chamado pelo onclick — apenas garantimos estado consistente
+    });
+
+    // ── VALIDAÇÕES E AVANÇO ───────────────────────────────────────────────────
+    function nextFrom1() {
+      // Ler campos
+      state.nome     = sanitize(document.getElementById('nome').value);
+      state.email    = sanitize(document.getElementById('email').value);
+      state.telefone = sanitize(document.getElementById('telefone').value);
+      state.setor    = sanitize(document.getElementById('setor').value);
+      var v = document.querySelector('input[name="vinculo"]:checked');
+      state.vinculo  = v ? v.value : '';
+
+      var ok = true;
+      showErr('error-nome',''); showErr('error-email',''); showErr('error-telefone','');
+      showErr('error-setor',''); showErr('error-vinculo','');
+
+      if (state.nome.trim().length < 3)   { showErr('error-nome','Informe seu nome completo.');       markErr('nome',true);     ok=false; } else markErr('nome',false);
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) { showErr('error-email','Informe um e-mail válido.'); markErr('email',true); ok=false; } else markErr('email',false);
+      if (state.telefone.trim().length < 8) { showErr('error-telefone','Informe um telefone válido.'); markErr('telefone',true); ok=false; } else markErr('telefone',false);
+      if (state.setor.trim().length < 2)   { showErr('error-setor','Informe o setor ou departamento.'); markErr('setor',true);  ok=false; } else markErr('setor',false);
+      if (!state.vinculo)                  { showErr('error-vinculo','Selecione seu vínculo com a UFRN.'); ok=false; }
+      if (state.vinculo === 'sem_vinculo') { document.getElementById('alert-no-vinculo').classList.remove('hidden'); return; }
+      else { var a=document.getElementById('alert-no-vinculo'); if(a) a.classList.add('hidden'); }
+
+      if (!ok) return;
+      saveDraft();
+      goTo(2);
+      populateForms(2);
+    }
+
+    function nextFrom2() {
+      state.descricao = sanitize(document.getElementById('descricao').value);
+      var c = document.querySelector('input[name="clareza"]:checked');
+      state.clareza = c ? c.value : '';
+
+      var ok = true;
+      showErr('error-descricao',''); showErr('error-clareza','');
+      if (state.descricao.trim().length < 20) { showErr('error-descricao','Descreva com pelo menos 20 caracteres.'); markErr('descricao',true); ok=false; } else markErr('descricao',false);
+      if (!state.clareza) { showErr('error-clareza','Selecione uma opção.'); ok=false; }
+      if (!ok) return;
+      saveDraft();
+      goTo(3);
+      renderCatalog();
+    }
+
+    function nextFrom3() {
+      showErr('error-produto','');
+      if (!state.produtoId) { showErr('error-produto','Selecione um tipo de produto.'); return; }
+      saveDraft();
+      goTo(4);
+      populateForms(4);
+    }
+
+    function nextFrom4() {
+      state.nomeProjeto = sanitize(document.getElementById('nome-projeto').value);
+      state.objetivo    = sanitize(document.getElementById('objetivo').value);
+      state.publicoAlvo = sanitize(document.getElementById('publico').value);
+      state.dataDesejada = document.getElementById('data-desejada').value;
+      var u = document.querySelector('input[name="urgencia"]:checked');
+      state.urgencia = u ? u.value : '';
+
+      var ok = true;
+      showErr('error-nome-projeto',''); showErr('error-objetivo',''); showErr('error-publico','');
+      showErr('error-data',''); showErr('error-urgencia','');
+
+      if (state.nomeProjeto.trim().length < 3) { showErr('error-nome-projeto','Informe o nome do projeto.'); markErr('nome-projeto',true); ok=false; } else markErr('nome-projeto',false);
+      if (state.objetivo.trim().length < 10)   { showErr('error-objetivo','Descreva o objetivo.');          markErr('objetivo',true);     ok=false; } else markErr('objetivo',false);
+      if (state.publicoAlvo.trim().length < 3)  { showErr('error-publico','Informe o público-alvo.');        markErr('publico',true);      ok=false; } else markErr('publico',false);
+      if (!state.dataDesejada) { showErr('error-data','Informe a data desejada.'); markErr('data-desejada',true); ok=false; }
+      else {
+        var sel = new Date(state.dataDesejada+'T00:00:00'), today = new Date(); today.setHours(0,0,0,0);
+        if (sel <= today) { showErr('error-data','A data deve ser posterior a hoje.'); markErr('data-desejada',true); ok=false; }
+        else markErr('data-desejada',false);
+      }
+      if (!state.urgencia) { showErr('error-urgencia','Selecione o nível de urgência.'); ok=false; }
+      if (!ok) return;
+      saveDraft();
+      goTo(5);
+      populateForms(5);
+    }
+
+    function nextFrom5() {
+      readForm5();
+      var ok = true;
+      showErr('error-link',''); showErr('error-aprovacao','');
+      var link = state.linkMateriais.trim();
+      if (link && !/^https?:\/\/.+/.test(link)) { showErr('error-link','O link deve começar com http:// ou https://'); markErr('link-materiais',true); ok=false; } else markErr('link-materiais',false);
+      if (!state.aprovacao) { showErr('error-aprovacao','Selecione uma opção.'); ok=false; }
+      if (!ok) return;
+      state.protocolo = state.sessionId || generateId();
+      saveDraft();
+      renderReview();
+      goTo(6);
+    }
+
+    function readForm5() {
+      var cbs = document.querySelectorAll('input[name="materiais"]:checked');
+      state.materiais = [];
+      for (var i=0;i<cbs.length;i++) state.materiais.push(cbs[i].value);
+      state.linkMateriais = sanitize(document.getElementById('link-materiais').value);
+      state.obsMateriais  = sanitize(document.getElementById('obs-materiais').value);
+      var a = document.querySelector('input[name="aprovacao"]:checked');
+      state.aprovacao = a ? a.value : '';
+    }
+
+    // ── CATÁLOGO ──────────────────────────────────────────────────────────────
+    function renderCatalog() {
+      var grid = document.getElementById('catalog-grid');
+      grid.innerHTML = '';
+      PRODUTOS.forEach(function(prod) {
+        var card = document.createElement('div');
+        card.className = 'catalog-card' + (state.produtoId === prod.id ? ' selected' : '');
+        card.setAttribute('role','option');
+        card.setAttribute('aria-selected', state.produtoId === prod.id ? 'true' : 'false');
+        card.setAttribute('tabindex','0');
+        card.dataset.id = prod.id;
+        card.innerHTML = '<span class="catalog-icon">'+prod.icon+'</span>'
+          + '<span class="catalog-name">'+prod.nome+'</span>'
+          + '<span class="catalog-desc">'+prod.desc+'</span>';
+        card.onclick = function(){ selectProduct(prod.id); };
+        card.onkeydown = function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectProduct(prod.id); } };
+        grid.appendChild(card);
+      });
+    }
+
+    function selectProduct(id) {
+      state.produtoId = id; state.subtipoId = '';
+      var cards = document.querySelectorAll('.catalog-card');
+      for (var i=0;i<cards.length;i++) {
+        var sel = cards[i].dataset.id === id;
+        if(sel) cards[i].classList.add('selected'); else cards[i].classList.remove('selected');
+        cards[i].setAttribute('aria-selected', sel ? 'true' : 'false');
+      }
+      showErr('error-produto','');
+      saveDraft();
+    }
+
+    // ── PRAZO ─────────────────────────────────────────────────────────────────
+    function updatePrazoDisplay() {
+      if (!state.dataDesejada || !state.produtoId) return;
+      var today = new Date(); today.setHours(0,0,0,0);
+      var target = new Date(state.dataDesejada+'T00:00:00');
+      var dias = countBusinessDays(today, target);
+      var prod = PRODUTOS.find(function(p){ return p.id===state.produtoId; });
+      var minimo = (state.subtipoId && PRAZO_MAP[state.subtipoId]) ? PRAZO_MAP[state.subtipoId] : (prod ? prod.prazoMinimo : 5);
+      var status = dias >= minimo ? 'verde' : (dias >= Math.ceil(minimo*0.6) ? 'amarelo' : 'vermelho');
+      state.diasUteis = dias; state.prazoStatus = status;
+
+      var lblMap = {verde:'✓ Prazo adequado', amarelo:'⚠ Prazo apertado', vermelho:'✕ Prazo crítico'};
+      var msgMap = {
+        verde: dias+' dias úteis disponíveis. O prazo mínimo para '+(prod?prod.nome:'este produto')+' é '+minimo+' dias úteis. Tudo certo!',
+        amarelo: dias+' dias úteis. Mínimo recomendado: '+minimo+' dias. Faremos o possível, mas pode ser necessário negociar.',
+        vermelho: dias+' dias úteis disponíveis, mas o mínimo é '+minimo+' dias. Nossa equipe entrará em contato para alinhar o prazo.'
+      };
+      document.getElementById('prazo-badge').textContent = lblMap[status];
+      document.getElementById('prazo-badge').className = 'prazo-badge ' + status;
+      document.getElementById('prazo-msg').textContent  = msgMap[status];
+      document.getElementById('prazo-display').classList.remove('hidden');
+    }
+
+    // ── CHAR COUNT ────────────────────────────────────────────────────────────
+    function updateCharCount(inputId, countId, max) {
+      var input = document.getElementById(inputId), count = document.getElementById(countId);
+      if (!input||!count) return;
+      var len = input.value.length;
+      count.textContent = len+' / '+max+' caracteres';
+      count.style.color = len > max ? 'var(--red)' : 'var(--gray-400)';
+    }
+
+    // ── POPULATE FORMS ────────────────────────────────────────────────────────
+    function populateForms(n) {
+      if (n===1) {
+        setV('nome',state.nome); setV('email',state.email);
+        setV('telefone',state.telefone); setV('setor',state.setor);
+        setR('vinculo',state.vinculo); checkVinculo();
+      }
+      if (n===2) {
+        setV('descricao',state.descricao); updateCharCount('descricao','char-descricao',600);
+        setR('clareza',state.clareza);
+      }
+      if (n===3) renderCatalog();
+      if (n===4) {
+        setV('nome-projeto',state.nomeProjeto); setV('objetivo',state.objetivo);
+        setV('publico',state.publicoAlvo);      setV('data-desejada',state.dataDesejada);
+        setR('urgencia',state.urgencia);
+        var tom = new Date(); tom.setDate(tom.getDate()+1);
+        var dateEl = document.getElementById('data-desejada');
+        if (dateEl) dateEl.min = tom.toISOString().split('T')[0];
+        if (state.dataDesejada) updatePrazoDisplay();
+      }
+      if (n===5) {
+        var cbs = document.querySelectorAll('input[name="materiais"]');
+        for(var i=0;i<cbs.length;i++) cbs[i].checked = state.materiais.indexOf(cbs[i].value)>-1;
+        setV('link-materiais',state.linkMateriais); setV('obs-materiais',state.obsMateriais);
+        setR('aprovacao',state.aprovacao);
+      }
+    }
+    function setV(id,val){ var el=document.getElementById(id); if(el&&val!=null) el.value=val; }
+    function setR(name,val){ if(!val) return; var el=document.querySelector('input[name="'+name+'"][value="'+val+'"]'); if(el) el.checked=true; }
+
+    // ── REVISÃO ───────────────────────────────────────────────────────────────
+    var LBL = {
+      vinculo: {servidor:'Servidor(a)',discente:'Discente',sem_vinculo:'Sem vínculo'},
+      clareza: {claro:'Bem definido',parcial:'Tenho uma ideia',incerto:'Estou em dúvida'},
+      urgencia:{normal:'Normal',prioritario:'Prioritário',urgente:'Urgente'},
+      aprovacao:{sim:'Sim',nao:'Não',nao_sei:'Não sei'},
+      materiais:{texto:'Texto/roteiro',fotos:'Fotos',videos_brutos:'Vídeos brutos',logo:'Logo',referencias:'Referências',nenhum:'Nenhum'}
+    };
+    function lbl(cat,v){ return (LBL[cat]&&LBL[cat][v])||v||'—'; }
+    function lblMat(m){ return (!m||!m.length)?'Nenhum':m.map(function(k){ return lbl('materiais',k); }).join(', '); }
+    function prazoLbl(s){ return {verde:'✓ Prazo adequado',amarelo:'⚠ Prazo apertado',vermelho:'✕ Prazo crítico'}[s]||s; }
+
+    function renderReview() {
+      var prod = PRODUTOS.find(function(p){ return p.id===state.produtoId; });
+      var prodNome = prod ? prod.nome : '—';
+      var sections = [
+        {title:'Identificação',  screen:1, rows:[['Nome',state.nome],['E-mail',state.email],['Telefone',state.telefone],['Setor',state.setor],['Vínculo',lbl('vinculo',state.vinculo)]]},
+        {title:'Necessidade',   screen:2, rows:[['Descrição',state.descricao],['Clareza',lbl('clareza',state.clareza)]]},
+        {title:'Produto',       screen:3, rows:[['Produto solicitado',prodNome]]},
+        {title:'Projeto',       screen:4, rows:[['Nome',state.nomeProjeto],['Objetivo',state.objetivo],['Público-alvo',state.publicoAlvo],['Data desejada',formatDate(state.dataDesejada)],['Dias úteis',state.diasUteis?(state.diasUteis+' dias ('+prazoLbl(state.prazoStatus)+')'):'—'],['Urgência',lbl('urgencia',state.urgencia)]]},
+        {title:'Materiais',     screen:5, rows:[['Disponíveis',lblMat(state.materiais)],['Link',state.linkMateriais||'—'],['Observações',state.obsMateriais||'—'],['Precisa aprovação',lbl('aprovacao',state.aprovacao)]]},
+      ];
+      var html = '';
+      sections.forEach(function(sec){
+        html += '<div class="review-section">'
+          + '<div class="review-section-header"><span class="review-section-title">'+sec.title+'</span>'
+          + '<button class="review-edit-btn" onclick="goTo('+sec.screen+')" aria-label="Editar '+sec.title+'">Editar</button></div>'
+          + '<div class="review-rows">';
+        sec.rows.forEach(function(r){
+          html += '<div class="review-row"><span class="review-key">'+r[0]+'</span><span class="review-val">'+(r[1]||'—')+'</span></div>';
+        });
+        html += '</div></div>';
+      });
+      document.getElementById('review-container').innerHTML = html;
+    }
+
+    // ── ENVIO ─────────────────────────────────────────────────────────────────
+    function buildBriefing() {
+      var prod = PRODUTOS.find(function(p){ return p.id===state.produtoId; });
+      return [
+        'PROTOCOLO: '+state.protocolo,
+        'DATA: '+new Date().toLocaleDateString('pt-BR'),
+        '',
+        '--- IDENTIFICAÇÃO ---',
+        'Nome: '+state.nome, 'E-mail: '+state.email, 'Telefone: '+state.telefone,
+        'Setor: '+state.setor, 'Vínculo: '+lbl('vinculo',state.vinculo),
+        '',
+        '--- NECESSIDADE ---',
+        'Descrição: '+state.descricao, 'Clareza: '+lbl('clareza',state.clareza),
+        '',
+        '--- PRODUTO ---',
+        'Produto: '+(prod?prod.nome:state.produtoId),
+        '',
+        '--- PROJETO ---',
+        'Nome: '+state.nomeProjeto, 'Objetivo: '+state.objetivo,
+        'Público-alvo: '+state.publicoAlvo, 'Data desejada: '+formatDate(state.dataDesejada),
+        'Dias úteis: '+state.diasUteis, 'Status prazo: '+prazoLbl(state.prazoStatus),
+        'Urgência: '+lbl('urgencia',state.urgencia),
+        '',
+        '--- MATERIAIS ---',
+        'Disponíveis: '+lblMat(state.materiais), 'Link: '+(state.linkMateriais||'N/A'),
+        'Obs: '+(state.obsMateriais||'—'), 'Aprovação: '+lbl('aprovacao',state.aprovacao),
+      ].join('\n');
+    }
+
+    async function submitForm() {
+      var btn = document.getElementById('btn-submit');
+      var overlay = document.getElementById('submit-overlay');
+      btn.disabled = true;
+      overlay.classList.remove('hidden');
+
+      try {
+        document.getElementById('submit-overlay-msg').textContent = 'Enviando sua solicitação…';
+        var prod = PRODUTOS.find(function(p){ return p.id===state.produtoId; });
+        var payload = {
+          protocolo:state.protocolo, nome:state.nome, email:state.email,
+          telefone:state.telefone, setor:state.setor, vinculo:lbl('vinculo',state.vinculo),
+          descricao:state.descricao, clareza:lbl('clareza',state.clareza),
+          produto:prod?prod.nome:state.produtoId,
+          nome_projeto:state.nomeProjeto, objetivo:state.objetivo,
+          publico_alvo:state.publicoAlvo, data_desejada:formatDate(state.dataDesejada),
+          dias_uteis:String(state.diasUteis), prazo_status:prazoLbl(state.prazoStatus),
+          urgencia:lbl('urgencia',state.urgencia), materiais:lblMat(state.materiais),
+          link_materiais:state.linkMateriais||'', observacoes:state.obsMateriais||'',
+          aprovacao:lbl('aprovacao',state.aprovacao),
+          _subject:'['+state.protocolo+'] Nova demanda CPI/UFRN — '+(prod?prod.nome:''),
+          briefing_completo: buildBriefing(),
+        };
+
+        var ep = window.CONFIG.formspree.endpoint;
+        if (ep) {
+          var r = await fetch(ep, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)});
+          if (!r.ok) throw new Error('Formspree error '+r.status);
+        }
+
+        document.getElementById('submit-overlay-msg').textContent = 'Registrando no sistema…';
+        try { await createTrelloCard(buildBriefing()); } catch(te){ console.warn('Trello:', te); }
+
+        overlay.classList.add('hidden');
+        clearDraft();
+        showConfirmation();
+      } catch(err) {
+        overlay.classList.add('hidden');
+        btn.disabled = false;
+        alert('Erro ao enviar. Tente novamente.\n\n'+err.message);
+      }
+    }
+
+    async function createTrelloCard(briefing) {
+      var cfg = window.CONFIG.trello;
+      if (!cfg.trelloKey || !cfg.trelloToken || cfg.trelloToken === 'SEU_TOKEN_TRELLO_AQUI') return;
+      var lr = await fetch('https://api.trello.com/1/boards/'+cfg.boardId+'/lists?key='+cfg.trelloKey+'&token='+cfg.trelloToken);
+      if (!lr.ok) throw new Error('Trello lists '+lr.status);
+      var lists = await lr.json();
+      var lst = lists.find(function(l){ return l.name.toLowerCase().includes('recebida'); }) || lists[0];
+      if (!lst) throw new Error('Lista não encontrada');
+      var prod = PRODUTOS.find(function(p){ return p.id===state.produtoId; });
+      var params = new URLSearchParams({
+        idList:lst.id, name:'['+state.protocolo+'] '+(prod?prod.nome:'')+ ' — '+state.nomeProjeto,
+        desc:briefing, due:state.dataDesejada?new Date(state.dataDesejada+'T12:00:00').toISOString():'',
+        key:cfg.trelloKey, token:cfg.trelloToken
+      });
+      var cr = await fetch('https://api.trello.com/1/cards?'+params, {method:'POST'});
+      if (!cr.ok) throw new Error('Trello card '+cr.status);
+    }
+
+    function showConfirmation() {
+      document.getElementById('protocol-number').textContent = state.protocolo;
+      var prod = PRODUTOS.find(function(p){ return p.id===state.produtoId; });
+      document.getElementById('confirm-details').innerHTML =
+        '<p><strong>'+state.nome+'</strong></p>'
+        +'<p>'+state.email+'</p>'
+        +'<p>'+(prod?prod.nome:'—')+' · '+state.nomeProjeto+'</p>'
+        +'<p>Data desejada: '+formatDate(state.dataDesejada)+'</p>';
+      goTo(7);
+    }
+
+    function copyProtocol() {
+      var num = state.protocolo; if(!num) return;
+      navigator.clipboard.writeText(num).then(function(){
+        var btn = document.getElementById('btn-copy-protocol');
+        var orig = btn.innerHTML;
+        btn.innerHTML = '✓';
+        setTimeout(function(){ btn.innerHTML = orig; }, 2000);
+      }).catch(function(){});
+    }
+
+    function newRequest() {
+      state = { sessionId:generateId(), currentScreen:0, savedAt:null,
+        nome:'', email:'', telefone:'', setor:'', vinculo:'',
+        descricao:'', clareza:'', produtoId:'', subtipoId:'',
+        nomeProjeto:'', objetivo:'', publicoAlvo:'', dataDesejada:'', urgencia:'',
+        diasUteis:0, prazoStatus:'', materiais:[], linkMateriais:'', obsMateriais:'', aprovacao:'', protocolo:'' };
+      document.querySelectorAll('.input').forEach(function(el){ el.value=''; el.classList.remove('error'); });
+      document.querySelectorAll('input[type="radio"]').forEach(function(el){ el.checked=false; });
+      document.querySelectorAll('input[type="checkbox"]').forEach(function(el){ el.checked=false; });
+      var pd=document.getElementById('prazo-display'); if(pd) pd.classList.add('hidden');
+      var nv=document.getElementById('alert-no-vinculo'); if(nv) nv.classList.add('hidden');
+      var rb=document.getElementById('resume-box'); if(rb) rb.classList.add('hidden');
+      goTo(0);
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    (function init() {
+      // Garantir que só screen-0 está visível ao carregar
+      goTo(0);
+      // Setar data mínima no campo de data
+      var dataEl = document.getElementById('data-desejada');
+      if (dataEl) {
+        var tom = new Date(); tom.setDate(tom.getDate()+1);
+        dataEl.min = tom.toISOString().split('T')[0];
+      }
+    })();
+  </script>
 </body>
 </html>
