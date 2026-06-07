@@ -55,12 +55,12 @@ body {
 
 /* ─── SCREENS ─── */
 .screen {
-  display: none;
-  flex-direction: column;
-  min-height: 100dvh;
+  display: none !important;
 }
 .screen.active {
-  display: flex;
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100dvh;
   animation: fadeIn .25s ease;
 }
 

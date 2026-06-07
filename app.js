@@ -244,10 +244,14 @@ function clearDraft() {
 // ─── NAVEGAÇÃO ────────────────────────────────────────────────────────────────
 
 function showScreen(n) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const screen = document.getElementById(`screen-${n}`);
-  if (screen) {
-    screen.classList.add('active');
+  // Remove 'active' de TODAS as telas primeiro
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+  });
+  // Adiciona 'active' somente na tela alvo
+  const target = document.getElementById('screen-' + n);
+  if (target) {
+    target.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
   state.currentScreen = n;
