@@ -219,7 +219,7 @@ function loadDraft(sessionId) {
     if (data.sessionId !== sessionId) return null;
     if (!data.savedAt) return null;
     const age = (Date.now() - new Date(data.savedAt).getTime()) / 86400000;
-    if (age > (CONFIG.app.draftExpiryDays || 30)) {
+    if (age > (window.CONFIG.app.draftExpiryDays || 30)) {
       localStorage.removeItem(STORAGE_KEY);
       return null;
     }
@@ -718,7 +718,7 @@ function buildFormspreePayload() {
 // ─── FORMSPREE ────────────────────────────────────────────────────────────────
 
 async function sendToFormspree(payload) {
-  const resp = await fetch(CONFIG.formspree.endpoint, {
+  const resp = await fetch(window.CONFIG.formspree.endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify(payload),
@@ -733,8 +733,8 @@ async function sendToFormspree(payload) {
 // ─── TRELLO ───────────────────────────────────────────────────────────────────
 
 async function getTrelloListId() {
-  const { apiKey, token, boardId, listName } = CONFIG.trello;
-  const url = `https://api.trello.com/1/boards/${boardId}/lists?key=${apiKey}&token=${token}`;
+  const { trelloKey, trelloToken, boardId, listName } = window.window.CONFIG.trello;
+  const url = `https://api.trello.com/1/boards/${boardId}/lists?key=${trelloKey}&token=${trelloToken}`;
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`Trello lists error ${resp.status}`);
   const lists = await resp.json();
@@ -746,7 +746,7 @@ async function getTrelloListId() {
 }
 
 async function createTrelloCard(briefing) {
-  const { apiKey, token } = CONFIG.trello;
+  const { trelloKey, trelloToken } = window.window.CONFIG.trello;
   const listId = await getTrelloListId();
   if (!listId) throw new Error('Lista do Trello não encontrada.');
 
@@ -759,8 +759,8 @@ async function createTrelloCard(briefing) {
     name:   cardName,
     desc:   briefing,
     due:    state.dataDesejada ? new Date(state.dataDesejada + 'T12:00:00').toISOString() : '',
-    key:    apiKey,
-    token:  token,
+    key:    trelloKey,
+    token:  trelloToken,
   });
 
   const resp = await fetch(`https://api.trello.com/1/cards?${params}`, { method: 'POST' });

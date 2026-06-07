@@ -1,0 +1,22 @@
+# ─── Credenciais e configurações locais ───
+config.js
+.env
+.env.local
+.env.*.local
+
+# ─── Sistema ───
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editores ───
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Claude Code ───
+.claude/
+
+# ─── Git local (portátil) ───
+Git/
