@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solicitação de Demandas — CPI/UFRN</title>
+  <meta name="description" content="Formulário de solicitação de demandas de comunicação da Coordenadoria de Promoção Institucional da UFRN." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ─── TELA 0 — ENTRADA ─── -->
+    <section class="screen active" id="screen-0" aria-label="Tela inicial">
+      <div class="screen-inner screen-entry">
+        <div class="entry-logo" aria-hidden="true">
+          <span class="logo-mark">C</span>
+          <div class="logo-text">
+            <span class="logo-title">Comunica</span>
+            <span class="logo-sub">Superintendência de Comunicação · UFRN</span>
+          </div>
+        </div>
+
+        <div class="entry-hero">
+          <h1>Solicitação de Demandas</h1>
+          <p>Preencha este formulário para encaminhar sua solicitação de comunicação à <strong>Coordenadoria de Promoção Institucional (CPI)</strong>. O processo é simples e guiado — leva cerca de 5 minutos.</p>
+        </div>
+
+        <div class="entry-actions">
+          <button class="btn btn-primary btn-lg" id="btn-start">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+            Iniciar nova solicitação
+          </button>
+          <button class="btn btn-outline" id="btn-resume">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd" /></svg>
+            Retomar rascunho salvo
+          </button>
+        </div>
+
+        <div class="resume-box hidden" id="resume-box">
+          <label for="resume-code" class="label">Digite seu código de rascunho</label>
+          <div class="resume-input-row">
+            <input type="text" id="resume-code" class="input" placeholder="CPI-2026-XXXX" maxlength="12" autocomplete="off" spellcheck="false" />
+            <button class="btn btn-primary" id="btn-resume-confirm">Retomar</button>
+          </div>
+          <p class="resume-hint">O código foi exibido ao iniciar sua sessão e foi salvo no seu dispositivo.</p>
+        </div>
+
+        <p class="entry-footer">Universidade Federal do Rio Grande do Norte · Natal, RN</p>
+      </div>
+    </section>
+
+    <!-- ─── TELA 1 — IDENTIFICAÇÃO ─── -->
+    <section class="screen" id="screen-1" aria-label="Identificação do solicitante">
+      <div class="screen-inner">
+        <div class="screen-header">
+          <div class="step-badge">1 de 6</div>
+          <h2>Quem está solicitando?</h2>
+          <p>Precisamos de algumas informações para entrar em contato e dar retorno sobre sua demanda.</p>
+        </div>
+
+        <div class="session-chip" id="session-chip" aria-live="polite"></div>
+
+        <form class="form" id="form-1" novalidate>
+          <div class="field">
+            <label for="nome" class="label">Nome completo <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" id="nome" name="nome" class="input" placeholder="Ex.: Maria das Graças Oliveira" autocomplete="name" required />
+            <span class="field-error" id="error-nome" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="email" class="label">E-mail institucional <span class="required" aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" class="input" placeholder="usuario@ufrn.br" autocomplete="email" required />
+            <span class="field-error" id="error-email" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="telefone" class="label">Telefone / WhatsApp <span class="required" aria-hidden="true">*</span></label>
+            <input type="tel" id="telefone" name="telefone" class="input" placeholder="(84) 9 0000-0000" autocomplete="tel" required />
+            <span class="field-error" id="error-telefone" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="setor" class="label">Setor / Departamento / Unidade <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" id="setor" name="setor" class="input" placeholder="Ex.: Departamento de Ciências da Computação" required />
+            <span class="field-error" id="error-setor" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label class="label">Vínculo com a UFRN <span class="required" aria-hidden="true">*</span></label>
+            <div class="radio-group" role="radiogroup" aria-required="true">
+              <label class="radio-card">
+                <input type="radio" name="vinculo" value="servidor" />
+                <span class="radio-card-content">
+                  <strong>Servidor(a)</strong>
+                  <span>Técnico-administrativo ou docente</span>
+                </span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="vinculo" value="discente" />
+                <span class="radio-card-content">
+                  <strong>Discente</strong>
+                  <span>Estudante de graduação ou pós-graduação</span>
+                </span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="vinculo" value="sem_vinculo" />
+                <span class="radio-card-content">
+                  <strong>Sem vínculo</strong>
+                  <span>Externo à UFRN</span>
+                </span>
+              </label>
+            </div>
+            <span class="field-error" id="error-vinculo" role="alert"></span>
+          </div>
+
+          <div class="alert alert-error hidden" id="alert-no-vinculo" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+            <span>Este formulário é destinado exclusivamente à comunidade UFRN (servidores e discentes). Solicitações externas devem ser encaminhadas por outro canal.</span>
+          </div>
+        </form>
+
+        <div class="screen-nav">
+          <button class="btn btn-ghost" data-back="0">← Voltar</button>
+          <button class="btn btn-primary" id="btn-next-1">Continuar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TELA 2 — DIAGNÓSTICO ─── -->
+    <section class="screen" id="screen-2" aria-label="Diagnóstico da demanda">
+      <div class="screen-inner">
+        <div class="screen-header">
+          <div class="step-badge">2 de 6</div>
+          <h2>O que você precisa comunicar?</h2>
+          <p>Descreva com suas próprias palavras o que você quer divulgar ou comunicar. Não precisa ser técnico — só nos conte a ideia.</p>
+        </div>
+
+        <form class="form" id="form-2" novalidate>
+          <div class="field">
+            <label for="descricao" class="label">Descreva sua necessidade <span class="required" aria-hidden="true">*</span></label>
+            <textarea id="descricao" name="descricao" class="input textarea" placeholder="Ex.: Quero divulgar um evento de extensão do meu departamento para a comunidade interna e externa. Preciso de artes para o Instagram e um banner digital." rows="5" required></textarea>
+            <span class="char-count" id="char-descricao" aria-live="polite">0 / 600 caracteres</span>
+            <span class="field-error" id="error-descricao" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label class="label">Você já tem clareza sobre o que precisa?</label>
+            <p class="field-hint">Isso nos ajuda a entender o nível de orientação que você necessita.</p>
+            <div class="clarity-group" role="radiogroup">
+              <label class="clarity-card" data-value="claro">
+                <input type="radio" name="clareza" value="claro" />
+                <div class="clarity-icon">🎯</div>
+                <strong>Bem definido</strong>
+                <span>Já sei exatamente o que quero</span>
+              </label>
+              <label class="clarity-card" data-value="parcial">
+                <input type="radio" name="clareza" value="parcial" />
+                <div class="clarity-icon">💡</div>
+                <strong>Tenho uma ideia</strong>
+                <span>Mas ainda preciso de orientação</span>
+              </label>
+              <label class="clarity-card" data-value="incerto">
+                <input type="radio" name="clareza" value="incerto" />
+                <div class="clarity-icon">🤔</div>
+                <strong>Estou em dúvida</strong>
+                <span>Não sei bem o que é mais adequado</span>
+              </label>
+            </div>
+            <span class="field-error" id="error-clareza" role="alert"></span>
+          </div>
+        </form>
+
+        <div class="screen-nav">
+          <button class="btn btn-ghost" data-back="1">← Voltar</button>
+          <button class="btn btn-primary" id="btn-next-2">Continuar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TELA 3 — CATÁLOGO ─── -->
+    <section class="screen" id="screen-3" aria-label="Catálogo de produtos">
+      <div class="screen-inner">
+        <div class="screen-header">
+          <div class="step-badge">3 de 6</div>
+          <h2>Qual tipo de produto você precisa?</h2>
+          <p>Selecione a categoria que melhor representa sua demanda. Você poderá detalhar na próxima etapa.</p>
+        </div>
+
+        <div class="catalog-grid" id="catalog-grid" role="listbox" aria-label="Catálogo de produtos" aria-required="true">
+          <!-- gerado pelo JS -->
+        </div>
+        <span class="field-error" id="error-produto" role="alert"></span>
+
+        <div class="screen-nav">
+          <button class="btn btn-ghost" data-back="2">← Voltar</button>
+          <button class="btn btn-primary" id="btn-next-3">Continuar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TELA 4 — DADOS DO PROJETO ─── -->
+    <section class="screen" id="screen-4" aria-label="Dados do projeto">
+      <div class="screen-inner">
+        <div class="screen-header">
+          <div class="step-badge">4 de 6</div>
+          <h2>Dados do projeto</h2>
+          <p>Conte-nos mais sobre o que será comunicado e quando você precisa.</p>
+        </div>
+
+        <form class="form" id="form-4" novalidate>
+          <div class="field">
+            <label for="nome-projeto" class="label">Nome do projeto ou ação <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" id="nome-projeto" name="nome_projeto" class="input" placeholder="Ex.: Semana de Engenharia 2026" required />
+            <span class="field-error" id="error-nome-projeto" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="objetivo" class="label">Objetivo da comunicação <span class="required" aria-hidden="true">*</span></label>
+            <textarea id="objetivo" name="objetivo" class="input textarea" placeholder="Ex.: Divulgar o evento para atrair participantes da comunidade acadêmica e do público geral." rows="3" required></textarea>
+            <span class="field-error" id="error-objetivo" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="publico" class="label">Público-alvo <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" id="publico" name="publico_alvo" class="input" placeholder="Ex.: Estudantes de graduação e comunidade local" required />
+            <span class="field-error" id="error-publico" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="data-desejada" class="label">Data de entrega desejada <span class="required" aria-hidden="true">*</span></label>
+            <input type="date" id="data-desejada" name="data_desejada" class="input" required />
+            <div class="prazo-display hidden" id="prazo-display" aria-live="polite">
+              <div class="prazo-badge" id="prazo-badge"></div>
+              <p class="prazo-msg" id="prazo-msg"></p>
+            </div>
+            <span class="field-error" id="error-data" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label class="label">Nível de urgência <span class="required" aria-hidden="true">*</span></label>
+            <div class="radio-group" role="radiogroup" aria-required="true">
+              <label class="radio-card">
+                <input type="radio" name="urgencia" value="normal" />
+                <span class="radio-card-content">
+                  <strong>Normal</strong>
+                  <span>Sem pressão de tempo específica</span>
+                </span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="urgencia" value="prioritario" />
+                <span class="radio-card-content">
+                  <strong>Prioritário</strong>
+                  <span>Prazo importante, mas viável</span>
+                </span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="urgencia" value="urgente" />
+                <span class="radio-card-content">
+                  <strong>Urgente</strong>
+                  <span>Prazo crítico, pode haver negociação</span>
+                </span>
+              </label>
+            </div>
+            <span class="field-error" id="error-urgencia" role="alert"></span>
+          </div>
+        </form>
+
+        <div class="screen-nav">
+          <button class="btn btn-ghost" data-back="3">← Voltar</button>
+          <button class="btn btn-primary" id="btn-next-4">Continuar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TELA 5 — MATERIAIS ─── -->
+    <section class="screen" id="screen-5" aria-label="Materiais disponíveis">
+      <div class="screen-inner">
+        <div class="screen-header">
+          <div class="step-badge">5 de 6</div>
+          <h2>Materiais e referências</h2>
+          <p>Informe o que você já tem disponível para facilitar a produção.</p>
+        </div>
+
+        <form class="form" id="form-5" novalidate>
+          <div class="field">
+            <label class="label">O que você já tem? (marque tudo que se aplica)</label>
+            <div class="checkbox-group">
+              <label class="checkbox-card">
+                <input type="checkbox" name="materiais" value="texto" />
+                <span>📝 Texto / roteiro pronto</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" name="materiais" value="fotos" />
+                <span>📸 Fotos já tiradas</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" name="materiais" value="videos_brutos" />
+                <span>🎥 Vídeos brutos gravados</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" name="materiais" value="logo" />
+                <span>🎨 Logo do evento ou setor</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" name="materiais" value="referencias" />
+                <span>🔗 Referências visuais / inspirações</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" name="materiais" value="nenhum" />
+                <span>❌ Não tenho nenhum material</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="link-materiais" class="label">Link para materiais (opcional)</label>
+            <input type="url" id="link-materiais" name="link_materiais" class="input" placeholder="https://drive.google.com/..." />
+            <p class="field-hint">Google Drive, Dropbox, WeTransfer ou qualquer outro link de acesso.</p>
+            <span class="field-error" id="error-link" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <label for="obs-materiais" class="label">Observações adicionais (opcional)</label>
+            <textarea id="obs-materiais" name="obs_materiais" class="input textarea" placeholder="Alguma instrução, restrição ou informação relevante que não foi contemplada acima." rows="3"></textarea>
+          </div>
+
+          <div class="field">
+            <label class="label">Este material precisará de aprovação de alguma chefia ou comissão antes de ser publicado? <span class="required" aria-hidden="true">*</span></label>
+            <div class="radio-group radio-group--row" role="radiogroup" aria-required="true">
+              <label class="radio-card">
+                <input type="radio" name="aprovacao" value="sim" />
+                <span class="radio-card-content"><strong>Sim</strong></span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="aprovacao" value="nao" />
+                <span class="radio-card-content"><strong>Não</strong></span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="aprovacao" value="nao_sei" />
+                <span class="radio-card-content"><strong>Não sei</strong></span>
+              </label>
+            </div>
+            <span class="field-error" id="error-aprovacao" role="alert"></span>
+          </div>
+        </form>
+
+        <div class="screen-nav">
+          <button class="btn btn-ghost" data-back="4">← Voltar</button>
+          <button class="btn btn-primary" id="btn-next-5">Revisar solicitação →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TELA 6 — REVISÃO ─── -->
+    <section class="screen" id="screen-6" aria-label="Revisão da solicitação">
+      <div class="screen-inner">
+        <div class="screen-header">
+          <div class="step-badge">6 de 6</div>
+          <h2>Revise sua solicitação</h2>
+          <p>Confira todas as informações antes de enviar. Você ainda pode voltar e editar qualquer campo.</p>
+        </div>
+
+        <div class="review-container" id="review-container">
+          <!-- gerado pelo JS -->
+        </div>
+
+        <div class="alert alert-info" role="note">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" /></svg>
+          <span>Ao enviar, sua solicitação será registrada e nossa equipe entrará em contato em até <strong>2 dias úteis</strong>.</span>
+        </div>
+
+        <div class="screen-nav screen-nav--submit">
+          <button class="btn btn-ghost" data-back="5">← Editar</button>
+          <button class="btn btn-primary btn-lg" id="btn-submit">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" /></svg>
+            Enviar solicitação
+          </button>
+        </div>
+
+        <div class="submit-overlay hidden" id="submit-overlay" role="status" aria-live="assertive">
+          <div class="submit-spinner" aria-hidden="true"></div>
+          <p id="submit-overlay-msg">Enviando sua solicitação…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TELA 7 — CONFIRMAÇÃO ─── -->
+    <section class="screen" id="screen-7" aria-label="Confirmação de envio">
+      <div class="screen-inner screen-confirm">
+        <div class="confirm-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg>
+        </div>
+        <h2>Solicitação enviada!</h2>
+        <p>Sua demanda foi registrada com sucesso. Guarde o número de protocolo abaixo para acompanhar o andamento.</p>
+
+        <div class="protocol-box" id="protocol-box" aria-label="Número de protocolo">
+          <span class="protocol-label">Número de protocolo</span>
+          <span class="protocol-number" id="protocol-number">—</span>
+          <button class="btn-copy" id="btn-copy-protocol" aria-label="Copiar número de protocolo" title="Copiar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z" /><path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z" /></svg>
+          </button>
+        </div>
+
+        <div class="confirm-details" id="confirm-details">
+          <!-- preenchido pelo JS -->
+        </div>
+
+        <div class="confirm-next">
+          <p>Nossa equipe entrará em contato pelo e-mail informado em até <strong>2 dias úteis</strong>.</p>
+          <button class="btn btn-outline" id="btn-new-request">Fazer nova solicitação</button>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /#app -->
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
